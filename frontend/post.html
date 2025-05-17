@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - Devyntra</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Devyntra</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="login.html" class="login-btn">Login</a>
+        </div>
+    </header>
+    <main class="post-detail" id="postDetail">
+        <!-- Blog post will be injected here -->
+    </main>
+    <script src="js/auth-ui.js"></script>
+    <script>
+async function fetchPost() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) {
+        document.getElementById('postDetail').innerHTML = '<div style="color:red;text-align:center;">No post found.</div>';
+        return;
+    }
+
+    // Increment view count (backend)
+    try {
+        await fetch(`http://localhost:5000/api/blogs/${id}/view`, { method: 'POST' });
+    } catch {}
+
+    const res = await fetch(`http://localhost:5000/api/blogs/${id}`);
+    const blog = await res.json();
+    if (!blog || blog.message) {
+        document.getElementById('postDetail').innerHTML = '<div style="color:red;text-align:center;">Post not found.</div>';
+        return;
+    }
+
+    // Fetch author info if not populated
+    let authorName = '';
+    if (blog.author && typeof blog.author === 'object' && blog.author.name) {
+        authorName = blog.author.name;
+    } else if (blog.author) {
+        try {
+            const userRes = await fetch(`http://localhost:5000/api/auth/me`, {
+                headers: {
+                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                }
+            });
+            const user = await userRes.json();
+            if (user && user.name) authorName = user.name;
+        } catch {}
+    }
+
+    // Fetch like count
+    let likeCount = 0;
+    try {
+        const likeRes = await fetch(`http://localhost:5000/api/blogs/${id}/like`);
+        const likeData = await likeRes.json();
+        likeCount = likeData.likeCount || 0;
+    } catch {}
+
+    // Fetch comments
+    let comments = [];
+    try {
+        const commentsRes = await fetch(`http://localhost:5000/api/blogs/${id}/comments`);
+        comments = await commentsRes.json();
+    } catch {}
+
+    // Fetch view count
+    let viewCount = blog.views || 0;
+
+    document.getElementById('postDetail').innerHTML = `
+        <article class="post-article">
+            <h1>${blog.title}</h1>
+            <div class="post-meta">
+                <span>By ${authorName || 'Unknown Author'}</span> | 
+                <span>${blog.updatedAt ? blog.updatedAt.substring(0,10) : ''}</span> | 
+                <span>${blog.category}</span> | 
+                <span>👁️ <b id="viewCount">${viewCount}</b> views</span>
+            </div>
+            <img src="${blog.coverImage || 'https://via.placeholder.com/800x350?text=No+Image'}" alt="Post Banner" class="post-banner">
+            <div class="post-content">
+                <p>${blog.content ? blog.content.replace(/\n/g, '<br>') : ''}</p>
+            </div>
+            <div class="post-interactions modern-interactions">
+                <button id="likeBtn" class="like-btn">
+                    <span class="like-icon">👍</span>
+                    <span id="likeCount">${likeCount}</span>
+                    <span class="like-label">Like</span>
+                </button>
+            </div>
+            <div class="post-comments modern-comments">
+                <h3>Comments</h3>
+                <form id="commentForm" class="comment-form-modern">
+                    <textarea id="commentInput" rows="2" placeholder="Add a comment..." required></textarea>
+                    <button type="submit" class="comment-submit-btn">Post</button>
+                </form>
+                <ul id="commentsList" class="comments-list-modern"></ul>
+            </div>
+        </article>
+    `;
+
+    // Like feature (backend)
+    document.getElementById('likeBtn').onclick = async function() {
+        const token = localStorage.getItem('token');
+        // Check login status right before liking
+        const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+        if (!token || !user || !user.name) {
+            alert('You must be logged in to like.');
+            return;
+        }
+        const res = await fetch(`http://localhost:5000/api/blogs/${id}/like`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        document.getElementById('likeCount').textContent = data.likeCount;
+        this.classList.toggle('liked', data.liked);
+    };
+
+    // Render comments
+    function renderComments() {
+        const ul = document.getElementById('commentsList');
+        ul.innerHTML = '';
+        if (!comments.length) {
+            ul.innerHTML = `<li class="no-comments-modern">No comments yet. Be the first!</li>`;
+        }
+        comments.forEach(c => {
+            const li = document.createElement('li');
+            li.className = 'comment-modern';
+            li.innerHTML = `
+                <div class="comment-avatar-modern">${(c.name || 'A').charAt(0).toUpperCase()}</div>
+                <div class="comment-body-modern">
+                    <div class="comment-author-modern">${c.name || 'Anonymous'}</div>
+                    <div class="comment-text-modern">${c.text}</div>
+                </div>
+            `;
+            ul.appendChild(li);
+        });
+    }
+    renderComments();
+
+    // Add comment (backend)
+    document.getElementById('commentForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const val = document.getElementById('commentInput').value.trim();
+        const token = localStorage.getItem('token');
+        // Check login status right before commenting
+        const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+        if (!token || !user || !user.name) {
+            alert('You must be logged in to comment.');
+            return;
+        }
+        if (val) {
+            const res = await fetch(`http://localhost:5000/api/blogs/${id}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ text: val })
+            });
+            if (res.ok) {
+                const newComment = await res.json();
+                comments.push(newComment);
+                renderComments();
+                document.getElementById('commentInput').value = '';
+            }
+        }
+    };
+}
+window.addEventListener('DOMContentLoaded', fetchPost);
+</script>
+<style>
+.modern-interactions {
+    margin: 2rem 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.like-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 2rem;
+    padding: 0.5rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(60,60,100,0.07);
+    position: relative;
+}
+.like-btn.liked {
+    background: var(--accent);
+    color: var(--primary);
+    transform: scale(1.07);
+}
+.like-btn .like-icon {
+    font-size: 1.3rem;
+}
+.like-btn .like-label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+.post-comments.modern-comments {
+    margin-top: 2.5rem;
+    background: #f7f8fa;
+    border-radius: 1.2rem;
+    padding: 2rem 1rem 1.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(60,60,100,0.06);
+}
+.comment-form-modern {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    align-items: flex-start;
+}
+.comment-form-modern textarea {
+    flex: 1;
+    border-radius: 1rem;
+    border: 1.5px solid var(--border);
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    background: #fff;
+    resize: vertical;
+    min-height: 40px;
+    transition: border 0.2s;
+}
+.comment-form-modern textarea:focus {
+    border: 1.5px solid var(--primary);
+}
+.comment-submit-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 1rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.comment-submit-btn:hover {
+    background: var(--accent);
+    color: var(--text);
+}
+.comments-list-modern {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.comment-modern {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 1px 4px rgba(60,60,100,0.04);
+    padding: 0.8rem 1rem;
+}
+.comment-avatar-modern {
+    width: 38px;
+    height: 38px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 2px;
+}
+.comment-body-modern {
+    flex: 1;
+}
+.comment-author-modern {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+.comment-text-modern {
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.5;
+}
+.no-comments-modern {
+    color: var(--muted);
+    text-align: center;
+    padding: 1rem 0;
+}
+</style>
+</body>
+</html>

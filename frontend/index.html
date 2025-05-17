@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devyntra - Blog Platform</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <link rel="icon" href="./img/hero.avif" type="image/x-icon">
+    <!-- You can add Google Fonts or icons here -->
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <header class="navbar">
+        <div class="logo">Devyntra</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <input type="text" placeholder="Search..." class="search-bar">
+            <button class="theme-toggle" title="Toggle theme">🌓</button>
+            <a href="login.html" class="login-btn">Login</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Inspiring Stories & Insights</h1>
+            <p>Your go-to platform for the latest in Tech, Lifestyle, and more.</p>
+            <a href="#" class="cta-btn">Read the Latest Post</a>
+        </div>
+        <div class="hero-img">    
+        <img src="/frontend/img/devyntra.jpg" alt="Blogging illustration">    
+    </div>
+        
+    </section>
+
+    <!-- Featured Posts -->
+    <section class="featured-posts">
+        <h2>Featured Posts</h2>
+        <div class="posts-grid" id="featuredPosts">
+            <!-- Dynamic posts will be injected here -->
+        </div>
+    </section>
+
+    <!-- Categories/Tags -->
+    <section class="categories">
+        <h2>Browse by Category</h2>
+        <div class="category-tags">
+            <button>Tech</button>
+            <button>Lifestyle</button>
+            <button>Travel</button>
+            <button>Productivity</button>
+            <button>Health</button>
+            <button>Finance</button>
+        </div>
+    </section>
+
+    <!-- About Section (Brief) -->
+    <section class="about-brief">
+        <h2>About Devyntra</h2>
+        <p>Devyntra is a community-driven platform sharing stories, guides, and inspiration for curious minds.</p>
+        <a href="about.html" class="learn-more">Learn More</a>
+    </section>
+
+    <!-- Newsletter Subscription -->
+    <section class="newsletter">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Get weekly updates, exclusive content, and free resources straight to your inbox.</p>
+        <form>
+            <input type="email" placeholder="Your email address" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </section>
+
+    <!-- Popular Posts / Recommended Reads -->
+    <section class="popular-posts">
+        <h2>Recommended Reads</h2>
+        <div class="posts-grid" id="recommendedPosts">
+            <!-- Dynamic posts will be injected here -->
+        </div>
+    </section>
+
+    <!-- Testimonials (Optional) -->
+    <section class="testimonials">
+        <h2>What Our Readers Say</h2>
+        <div class="testimonial-list">
+            <blockquote>
+                <p>"Devyntra has transformed the way I learn and stay inspired!"</p>
+                <footer>- Alex P.</footer>
+            </blockquote>
+            <blockquote>
+                <p>"The articles are always insightful and actionable."</p>
+                <footer>- Jamie L.</footer>
+            </blockquote>
+        </div>
+    </section>
+
+    <!-- Social Media Links -->
+    <section class="social-media">
+        <h2>Connect with Us</h2>
+        <div class="social-icons">
+            <a href="#" title="Twitter"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitter.svg" alt="Twitter" width="24"></a>
+            <a href="#" title="Instagram"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg" alt="Instagram" width="24"></a>
+            <a href="#" title="LinkedIn"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg" alt="LinkedIn" width="24"></a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+        <div class="footer-social">
+            <a href="#" title="Twitter">Twitter</a>
+            <a href="#" title="Instagram">Instagram</a>
+            <a href="#" title="LinkedIn">LinkedIn</a>
+        </div>
+        <div class="copyright">
+            &copy; 2025 Devyntra. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="js/auth-ui.js"></script>
+    <script>
+    // Add "Write Blog" button if logged in
+    window.addEventListener('DOMContentLoaded', function() {
+        const user = localStorage.getItem('writelyUser');
+        const navActions = document.querySelector('.nav-actions');
+        if (user && navActions && !navActions.querySelector('.write-blog-btn')) {
+            const writeBtn = document.createElement('a');
+            writeBtn.textContent = 'Write Blog';
+            writeBtn.className = 'write-blog-btn';
+            writeBtn.href = 'write.html';
+            writeBtn.style.background = 'var(--primary)';
+            writeBtn.style.color = '#fff';
+            writeBtn.style.padding = '0.45rem 1.2rem';
+            writeBtn.style.borderRadius = '2rem';
+            writeBtn.style.textDecoration = 'none';
+            writeBtn.style.fontWeight = '500';
+            writeBtn.style.marginLeft = '1rem';
+            writeBtn.style.transition = 'background 0.2s';
+            writeBtn.onmouseover = () => writeBtn.style.background = 'var(--accent)';
+            writeBtn.onmouseout = () => writeBtn.style.background = 'var(--primary)';
+            navActions.appendChild(writeBtn);
+        }
+    });
+
+    // Add "Dashboard" button if logged in
+    window.addEventListener('DOMContentLoaded', function() {
+        const user = localStorage.getItem('writelyUser');
+        const navActions = document.querySelector('.nav-actions');
+        if (user && navActions && !navActions.querySelector('.dashboard-btn')) {
+            const dashBtn = document.createElement('a');
+            dashBtn.textContent = 'Dashboard';
+            dashBtn.className = 'dashboard-btn';
+            dashBtn.href = 'dashboard.html';
+            dashBtn.style.background = 'var(--primary)';
+            dashBtn.style.color = '#fff';
+            dashBtn.style.padding = '0.45rem 1.2rem';
+            dashBtn.style.borderRadius = '2rem';
+            dashBtn.style.textDecoration = 'none';
+            dashBtn.style.fontWeight = '500';
+            dashBtn.style.marginLeft = '1rem';
+            dashBtn.style.transition = 'background 0.2s';
+            dashBtn.onmouseover = () => dashBtn.style.background = 'var(--accent)';
+            dashBtn.onmouseout = () => dashBtn.style.background = 'var(--primary)';
+            navActions.appendChild(dashBtn);
+        }
+    });
+
+    // Hero image animation (30% visible triggers animation)
+    document.addEventListener("DOMContentLoaded", function () {
+        const heroImg = document.querySelector(".hero-img");
+        if (!heroImg) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        heroImg.classList.add("show");
+                    } else {
+                        heroImg.classList.remove("show"); // Reset animation
+                    }
+                });
+            },
+            { threshold: 0.3 }
+        );
+        observer.observe(heroImg);
+    });
+
+    // Post card animation (20% visible triggers animation)
+    document.addEventListener("DOMContentLoaded", function () {
+        const postCards = document.querySelectorAll(".post-card");
+        if (!postCards.length) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("show");
+                    } else {
+                        entry.target.classList.remove("show"); // Auto Reset Animation
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
+        postCards.forEach((card) => observer.observe(card));
+    });
+
+    // Intersection Observer for post-card animation (repeat on scroll up/down)
+    function animateCardsOnScroll() {
+        const cards = document.querySelectorAll('.post-card');
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                        entry.target.classList.add('show');
+                    } else {
+                        entry.target.classList.remove('show');
+                    }
+                });
+            }, { threshold: 0.3 });
+            cards.forEach(card => observer.observe(card));
+        } else {
+            // Fallback: show all
+            cards.forEach(card => card.classList.add('show'));
+        }
+    }
+
+    // Fetch and render featured/recommended posts from backend
+    async function renderPosts(sectionId, params = '') {
+        const container = document.getElementById(sectionId);
+        if (!container) return;
+        container.innerHTML = '<div style="color:var(--muted);text-align:center;">Loading...</div>';
+        try {
+            const res = await fetch(`http://localhost:5000/api/blogs${params}`);
+            const blogs = await res.json();
+            if (!Array.isArray(blogs) || blogs.length === 0) {
+                container.innerHTML = '<div style="color:var(--muted);text-align:center;">No posts found.</div>';
+                return;
+            }
+            container.innerHTML = '';
+            blogs.slice(0, 10).forEach(blog => {
+                const card = document.createElement('article');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <img src="${blog.coverImage || 'https://via.placeholder.com/400x170?text=No+Image'}" alt="Post Thumbnail">
+                    <h3>${blog.title}</h3>
+                    <p>${blog.content ? blog.content.substring(0, 80) + '...' : ''}</p>
+                    <a href="post.html?id=${blog._id}" class="read-more">Read More</a>
+                `;
+                container.appendChild(card);
+            });
+            animateCardsOnScroll();
+        } catch {
+            container.innerHTML = '<div style="color:red;text-align:center;">Failed to load posts.</div>';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        // Featured: newest blogs (by updatedAt)
+        renderPosts('featuredPosts', '?status=Published&limit=8&sort=new');
+        // Recommended: most viewed blogs
+        renderPosts('recommendedPosts', '?status=Published&limit=8&sort=views');
+        // Animate hero image
+        setTimeout(() => {
+            const heroImg = document.querySelector('.hero-img');
+            if (heroImg) heroImg.classList.add('show');
+        }, 150);
+    });
+    </script>
+</body>
+</html>

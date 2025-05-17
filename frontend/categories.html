@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - Devyntra</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Devyntra</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="login.html" class="login-btn">Login</a>
+        </div>
+    </header>
+    <main class="categories-listing">
+        <div class="categories-header">
+            <h1>Browse by Category</h1>
+            <p class="categories-tagline">Find articles based on topics that interest you.</p>
+        </div>
+        <div class="category-cards-grid" id="categoryCards">
+            <!-- Dynamic categories will be injected here -->
+        </div>
+        <section class="posts-grid" id="categoryPosts">
+            <!-- Dynamic blog cards for a category -->
+        </section>
+        <div class="categories-cta">
+            <a href="index.html" class="back-home-btn">← Back to Home</a>
+        </div>
+    </main>
+    <script src="js/auth-ui.js"></script>
+    <script>
+    async function fetchCategories() {
+        const res = await fetch('http://localhost:5000/api/categories');
+        const cats = await res.json();
+        const grid = document.getElementById('categoryCards');
+        grid.innerHTML = '';
+        cats.forEach(cat => {
+            const card = document.createElement('a');
+            card.className = 'category-card';
+            card.href = "#";
+            card.innerHTML = `<div class="category-icon">📚</div>
+                <div class="category-name">${cat}</div>
+                <div class="category-count" id="count-${cat}"></div>`;
+            card.onclick = (e) => {
+                e.preventDefault();
+                fetchBlogsByCategory(cat);
+            };
+            grid.appendChild(card);
+        });
+    }
+
+    async function fetchBlogsByCategory(category) {
+        const res = await fetch(`http://localhost:5000/api/blogs?category=${encodeURIComponent(category)}&status=Published`);
+        const blogs = await res.json();
+        const postsGrid = document.getElementById('categoryPosts');
+        postsGrid.innerHTML = '';
+        if (!Array.isArray(blogs) || blogs.length === 0) {
+            postsGrid.innerHTML = '<div style="color:var(--muted);text-align:center;">No posts found.</div>';
+            return;
+        }
+        blogs.forEach(blog => {
+            const card = document.createElement('article');
+            card.className = 'post-card';
+            card.innerHTML = `
+                <img src="${blog.coverImage || 'https://via.placeholder.com/400x170?text=No+Image'}" alt="Post Thumbnail">
+                <h3>${blog.title}</h3>
+                <p>${blog.content ? blog.content.substring(0, 80) + '...' : ''}</p>
+                <a href="post.html?id=${blog._id}" class="read-more">Read More</a>
+            `;
+            postsGrid.appendChild(card);
+        });
+        // Animate post cards after rendering
+        animateCategoryCards();
+    }
+
+    // Animation for post cards in category view
+    function animateCategoryCards() {
+        const postCards = document.querySelectorAll("#categoryPosts .post-card");
+        if (!postCards.length) return;
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("show");
+                        } else {
+                            entry.target.classList.remove("show");
+                        }
+                    });
+                },
+                { threshold: 0.2 }
+            );
+            postCards.forEach((card) => observer.observe(card));
+        } else {
+            postCards.forEach(card => card.classList.add('show'));
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', async function() {
+        await fetchCategories();
+        
+    });
+    </script>
+</body>
+</html>

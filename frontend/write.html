@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write a New Blog Post - Devyntra</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Devyntra</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="index.html" class="login-btn" style="display:none;">Login</a>
+        </div>
+    </header>
+    <main class="write-main">
+        <h1>Write a New Blog Post</h1>
+        <p class="write-intro">Share your ideas with the world. Fill in the details below.</p>
+        <form class="write-form" id="blogForm">
+            <label>
+                Blog Title
+                <input type="text" id="blogTitle" required placeholder="Enter blog title">
+            </label>
+            <label>
+                Cover Image URL
+                <input type="url" id="coverImage" placeholder="Paste image URL">
+            </label>
+            <label>
+                Category
+                <select id="category" required>
+                    <option value="">Select category</option>
+                    <option>Tech</option>
+                    <option>Lifestyle</option>
+                    <option>Travel</option>
+                    <option>Productivity</option>
+                    <option>Health</option>
+                    <option>Finance</option>
+                </select>
+            </label>
+            <label>
+                Blog Content
+                <textarea id="blogContent" rows="8" required placeholder="Write your blog content here..."></textarea>
+            </label>
+            <label>
+                Tags (optional)
+                <input type="text" id="tags" placeholder="e.g. javascript, webdev, travel">
+            </label>
+            <div class="write-actions">
+                <button type="button" id="previewBtn">Preview</button>
+                <button type="submit" id="publishBtn">Publish</button>
+            </div>
+        </form>
+        <section id="previewSection" class="blog-preview" style="display:none;">
+            <h2>Preview</h2>
+            <div id="previewContent"></div>
+        </section>
+    </main>
+    <script src="js/auth-ui.js"></script>
+    <script>
+    window.addEventListener('DOMContentLoaded', async function() {
+        const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+        if (!user || !user.id) window.location.href = 'login.html';
+
+        // If editing, populate fields
+        const params = new URLSearchParams(window.location.search);
+        const blogId = params.get('id');
+        if (blogId) {
+            try {
+                const res = await fetch(`http://localhost:5000/api/blogs/${blogId}`);
+                const blog = await res.json();
+                if (blog && !blog.message) {
+                    document.getElementById('blogTitle').value = blog.title || '';
+                    document.getElementById('coverImage').value = blog.coverImage || '';
+                    document.getElementById('category').value = blog.category || '';
+                    document.getElementById('blogContent').value = blog.content || '';
+                    document.getElementById('tags').value = (blog.tags || []).join(', ');
+                    // Optionally, store blogId for update
+                    document.getElementById('blogForm').setAttribute('data-edit-id', blogId);
+                }
+            } catch (e) {
+                // Optionally show error
+            }
+        }
+    });
+
+    // Preview logic
+    document.getElementById('previewBtn').onclick = function() {
+        const title = document.getElementById('blogTitle').value;
+        const img = document.getElementById('coverImage').value;
+        const cat = document.getElementById('category').value;
+        const content = document.getElementById('blogContent').value;
+        const tags = document.getElementById('tags').value;
+
+        let html = '';
+        if (title) html += `<h3>${title}</h3>`;
+        if (img) html += `<img src="${img}" alt="Cover Image" style="max-width:100%;border-radius:1rem;margin:1rem 0;">`;
+        if (cat) html += `<div style="color:var(--primary);font-weight:600;margin-bottom:0.5rem;">Category: ${cat}</div>`;
+        if (content) html += `<div style="margin-bottom:1rem;white-space:pre-line;">${content}</div>`;
+        if (tags) html += `<div style="color:var(--accent);font-size:0.98rem;">Tags: ${tags}</div>`;
+
+        document.getElementById('previewContent').innerHTML = html;
+        document.getElementById('previewSection').style.display = 'block';
+        document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Publish logic (create or update)
+    document.getElementById('blogForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const title = document.getElementById('blogTitle').value.trim();
+        const coverImage = document.getElementById('coverImage').value.trim();
+        const category = document.getElementById('category').value;
+        const content = document.getElementById('blogContent').value.trim();
+        const tags = document.getElementById('tags').value.trim();
+        const status = "Published";
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must be logged in to publish a blog.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const blogId = this.getAttribute('data-edit-id');
+        const url = blogId
+            ? `http://localhost:5000/api/blogs/${blogId}`
+            : 'http://localhost:5000/api/blogs';
+        const method = blogId ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ title, coverImage, category, content, tags, status })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert(blogId ? 'Blog updated!' : 'Blog published!');
+                this.reset();
+                document.getElementById('previewSection').style.display = 'none';
+                if (blogId) window.location.href = 'dashboard.html';
+            } else {
+                alert(data.message || 'Failed to publish blog.');
+            }
+        } catch (err) {
+            alert('Network error. Try again.');
+        }
+    };
+    </script>
+</body>
+</html>

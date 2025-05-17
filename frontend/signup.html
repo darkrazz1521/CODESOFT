@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Devyntra</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <form class="auth-form" id="signup-form">
+            <h2>Create Your Account</h2>
+            <div id="signup-fields">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" id="signup-btn">Sign Up</button>
+            </div>
+            <div id="otp-fields" style="display:none;">
+                <input type="text" id="otp" placeholder="Enter OTP" maxlength="6">
+                <button type="button" id="verify-otp-btn">Verify OTP</button>
+            </div>
+            <p class="auth-switch">
+                Already have an account?
+                <a href="login.html">Login</a>
+            </p>
+            <p id="signup-message" style="color:var(--primary);text-align:center;"></p>
+        </form>
+    </div>
+    <script>
+    const signupForm = document.getElementById('signup-form');
+    const signupFields = document.getElementById('signup-fields');
+    const otpFields = document.getElementById('otp-fields');
+    const signupMsg = document.getElementById('signup-message');
+    let signupEmail = '';
+
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        signupMsg.textContent = '';
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                signupFields.style.display = 'none';
+                otpFields.style.display = 'flex';
+                signupEmail = email;
+                signupMsg.style.color = 'green';
+                signupMsg.textContent = 'OTP sent to your email. Please check your inbox.';
+            } else {
+                signupMsg.style.color = 'red';
+                signupMsg.textContent = data.message || 'Signup failed.';
+            }
+        } catch {
+            signupMsg.style.color = 'red';
+            signupMsg.textContent = 'Network error. Try again.';
+        }
+    });
+
+    document.getElementById('verify-otp-btn').onclick = async function() {
+        const otp = document.getElementById('otp').value.trim();
+        signupMsg.textContent = '';
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: signupEmail, otp })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                signupMsg.style.color = 'green';
+                signupMsg.textContent = 'Signup complete! Redirecting...';
+                otpFields.style.display = 'none';
+                // Auto-login: fetch token
+                const loginRes = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: signupEmail, password: document.getElementById('password').value })
+                });
+                const loginData = await loginRes.json();
+                if (loginRes.ok) {
+                    localStorage.setItem('writelyUser', JSON.stringify(loginData.user));
+                    localStorage.setItem('token', loginData.token);
+                }
+                setTimeout(() => window.location.href = 'index.html', 1200);
+            } else {
+                signupMsg.style.color = 'red';
+                signupMsg.textContent = data.message || 'OTP verification failed.';
+            }
+        } catch {
+            signupMsg.style.color = 'red';
+            signupMsg.textContent = 'Network error. Try again.';
+        }
+    };
+    </script>
+</body>
+</html>

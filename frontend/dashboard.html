@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Devyntra</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Devyntra</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="login.html" class="login-btn">Login</a>
+        </div>
+    </header>
+    <main class="dashboard-main">
+        <section class="dashboard-welcome">
+            <h1 id="welcomeUser">Welcome, Blogger!</h1>
+            <div class="dashboard-summary">
+                <div class="summary-card">
+                    <div class="summary-title">Total Blogs</div>
+                    <div class="summary-value" id="totalBlogs">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Drafts</div>
+                    <div class="summary-value" id="totalDrafts">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Published</div>
+                    <div class="summary-value" id="totalPublished">0</div>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <a href="write.html" class="dashboard-btn">Create New Blog</a>
+                <button class="dashboard-btn danger" id="deleteDraftsBtn">Delete All Drafts</button>
+            </div>
+        </section>
+        <section class="dashboard-filters">
+            <input type="text" id="searchInput" placeholder="Search by title or keyword">
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option>Tech</option>
+                <option>Lifestyle</option>
+                <option>Travel</option>
+                <option>Productivity</option>
+                <option>Health</option>
+                <option>Finance</option>
+            </select>
+        </section>
+        <section class="dashboard-table-section">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="blogTableBody">
+                    <!-- Blog rows will be injected here -->
+                </tbody>
+            </table>
+            <div id="noBlogsMsg" style="text-align:center;color:var(--muted);margin-top:2rem;display:none;">No blogs found.</div>
+        </section>
+    </main>
+    <script src="js/auth-ui.js"></script>
+    <script>
+let blogs = [];
+
+async function fetchBlogsAndStats() {
+    const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+    const token = localStorage.getItem('token');
+    if (!user.id || !token) {
+        window.location.href = "login.html";
+        return;
+    }
+    document.getElementById('welcomeUser').textContent = user.name ? `Welcome, ${user.name}!` : "Welcome, Blogger!";
+
+    // Fetch blogs (with JWT)
+    const blogRes = await fetch(`http://localhost:5000/api/blogs?author=${user.id}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    blogs = await blogRes.json();
+
+    // Calculate stats from blogs array (frontend, always accurate)
+    const totalBlogs = blogs.length;
+    const totalDrafts = blogs.filter(b => b.status === "Draft").length;
+    const totalPublished = blogs.filter(b => b.status === "Published").length;
+    document.getElementById('totalBlogs').textContent = totalBlogs;
+    document.getElementById('totalDrafts').textContent = totalDrafts;
+    document.getElementById('totalPublished').textContent = totalPublished;
+
+    renderTable();
+}
+
+function renderTable() {
+        const tbody = document.getElementById('blogTableBody');
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const cat = document.getElementById('categoryFilter').value;
+        let filtered = blogs.filter(b =>
+            (!cat || b.category === cat) &&
+            (!search || b.title.toLowerCase().includes(search) || (b.content && b.content.toLowerCase().includes(search)))
+        );
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            document.getElementById('noBlogsMsg').style.display = 'block';
+            return;
+        } else {
+            document.getElementById('noBlogsMsg').style.display = 'none';
+        }
+        filtered.forEach(blog => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${blog.title}</td>
+                <td>${blog.category}</td>
+                <td>${blog.updatedAt ? blog.updatedAt.substring(0,10) : ''}</td>
+                <td>${blog.status}</td>
+                <td>
+                    <button class="table-btn edit" onclick="editBlog('${blog._id}')">Edit</button>
+                    <button class="table-btn danger" onclick="deleteBlog('${blog._id}')">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.getElementById('searchInput').oninput = renderTable;
+    document.getElementById('categoryFilter').onchange = renderTable;
+
+    window.editBlog = function(id) {
+        window.location.href = `write.html?id=${id}`;
+    };
+
+    window.deleteBlog = async function(id) {
+        if (confirm('Are you sure you want to delete this blog?')) {
+            const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+            await fetch(`http://localhost:5000/api/blogs/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
+            });
+            fetchBlogsAndStats();
+        }
+    };
+
+    document.getElementById('deleteDraftsBtn').onclick = async function() {
+        if (confirm('Delete all drafts?')) {
+            const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
+            await fetch(`http://localhost:5000/api/blogs/drafts`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
+            });
+            fetchBlogsAndStats();
+        }
+    };
+
+    window.addEventListener('DOMContentLoaded', fetchBlogsAndStats);
+    </script>
+</body>
+</html>
