@@ -191,6 +191,11 @@
     document.addEventListener("DOMContentLoaded", function () {
         const heroImg = document.querySelector(".hero-img");
         if (!heroImg) return;
+        // Always show hero image on mobile
+        if (window.innerWidth <= 500) {
+            heroImg.classList.add("show");
+            return;
+        }
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
