@@ -46,50 +46,69 @@
       <a href="write.html" id="mobileWriteBtn">Write Blog</a>
       <a href="dashboard.html" id="mobileDashboardBtn">Dashboard</a>
       <a href="#" id="mobileLogoutBtn">Logout</a>
+      <a href="login.html" id="mobileLoginBtn">Login</a>
     </nav>
     <script>
     async function fetchCategories() {
-        const res = await fetch('https://devyntra-backend.onrender.com/api/categories');
-        const cats = await res.json();
         const grid = document.getElementById('categoryCards');
-        grid.innerHTML = '';
-        cats.forEach(cat => {
-            const card = document.createElement('a');
-            card.className = 'category-card';
-            card.href = "#";
-            card.innerHTML = `<div class="category-icon">📚</div>
-                <div class="category-name">${cat}</div>
-                <div class="category-count" id="count-${cat}"></div>`;
-            card.onclick = (e) => {
-                e.preventDefault();
-                fetchBlogsByCategory(cat);
-            };
-            grid.appendChild(card);
-        });
+        grid.innerHTML = '<div style="color:var(--muted);text-align:center;">Loading...</div>';
+        try {
+            const res = await fetch('https://devyntra-backend.onrender.com/api/categories');
+            let cats = await res.json();
+            // Support both array of strings and array of objects with .name
+            if (Array.isArray(cats) && cats.length && typeof cats[0] === 'object' && cats[0].name) {
+                cats = cats.map(c => c.name);
+            }
+            grid.innerHTML = '';
+            if (!Array.isArray(cats) || cats.length === 0) {
+                grid.innerHTML = '<div style="color:var(--muted);text-align:center;">No categories found.</div>';
+                return;
+            }
+            cats.forEach(cat => {
+                const card = document.createElement('a');
+                card.className = 'category-card';
+                card.href = "#";
+                card.innerHTML = `<div class="category-icon">📚</div>
+                    <div class="category-name">${cat}</div>
+                    <div class="category-count" id="count-${cat}"></div>`;
+                card.onclick = (e) => {
+                    e.preventDefault();
+                    fetchBlogsByCategory(cat);
+                };
+                grid.appendChild(card);
+            });
+        } catch (err) {
+            grid.innerHTML = '<div style="color:red;text-align:center;">Failed to load categories.</div>';
+        }
     }
 
     async function fetchBlogsByCategory(category) {
-        const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs?category=${encodeURIComponent(category)}&status=Published`);
-        const blogs = await res.json();
         const postsGrid = document.getElementById('categoryPosts');
-        postsGrid.innerHTML = '';
-        if (!Array.isArray(blogs) || blogs.length === 0) {
-            postsGrid.innerHTML = '<div style="color:var(--muted);text-align:center;">No posts found.</div>';
-            return;
+        postsGrid.innerHTML = '<div style="color:var(--muted);text-align:center;">Loading...</div>';
+        try {
+            const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs?category=${encodeURIComponent(category)}&status=Published`);
+            const blogs = await res.json();
+            postsGrid.innerHTML = '';
+            if (!Array.isArray(blogs) || blogs.length === 0) {
+                postsGrid.innerHTML = '<div style="color:var(--muted);text-align:center;">No posts found.</div>';
+                return;
+            }
+            blogs.forEach(blog => {
+                const card = document.createElement('article');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <img src="${blog.coverImage || 'https://via.placeholder.com/400x170?text=No+Image'}" alt="Post Thumbnail">
+                    <h3>${blog.title}</h3>
+                    <p>${blog.content ? blog.content.substring(0, 80) + '...' : ''}</p>
+                    <a href="post.html?id=${blog._id}" class="read-more">Read More</a>
+                `;
+                postsGrid.appendChild(card);
+            });
+            // Animate post cards after rendering
+            animateCategoryCards();
+        } catch (err) {
+            postsGrid.innerHTML = '<div style="color:red;text-align:center;">Failed to load posts.</div>';
         }
-        blogs.forEach(blog => {
-            const card = document.createElement('article');
-            card.className = 'post-card';
-            card.innerHTML = `
-                <img src="${blog.coverImage || 'https://via.placeholder.com/400x170?text=No+Image'}" alt="Post Thumbnail">
-                <h3>${blog.title}</h3>
-                <p>${blog.content ? blog.content.substring(0, 80) + '...' : ''}</p>
-                <a href="post.html?id=${blog._id}" class="read-more">Read More</a>
-            `;
-            postsGrid.appendChild(card);
-        });
-        // Animate post cards after rendering
-        animateCategoryCards();
     }
 
     // Animation for post cards in category view
@@ -116,19 +135,69 @@
     }
 
     // Mobile menu logic
-    function showMobileMenuIfLoggedIn() {
-      const user = localStorage.getItem('writelyUser');
+    window.addEventListener('DOMContentLoaded', function() {
       const btn = document.getElementById('mobileMenuBtn');
       const menu = document.getElementById('mobileMenu');
-      if (window.innerWidth <= 500 && user) {
-        btn.style.display = 'flex';
-        menu.style.display = 'flex';
-      } else {
-        btn.style.display = 'none';
-        menu.style.display = 'none';
+      const closeBtn = document.getElementById('mobileMenuClose');
+      const logoutBtn = document.getElementById('mobileLogoutBtn');
+      const loginBtn = document.getElementById('mobileLoginBtn');
+      const writeBtn = document.getElementById('mobileWriteBtn');
+      const dashBtn = document.getElementById('mobileDashboardBtn');
+
+      function updateMobileMenuVisibility() {
+        const user = localStorage.getItem('writelyUser');
+        if (window.innerWidth <= 500) {
+          btn.style.display = 'flex';
+          menu.style.display = 'flex';
+          // Show/hide menu items based on login status
+          if (user) {
+            writeBtn.style.display = '';
+            dashBtn.style.display = '';
+            logoutBtn.style.display = '';
+            loginBtn.style.display = 'none';
+          } else {
+            writeBtn.style.display = 'none';
+            dashBtn.style.display = 'none';
+            logoutBtn.style.display = 'none';
+            loginBtn.style.display = '';
+          }
+        } else {
+          btn.style.display = 'none';
+          menu.style.display = 'none';
+          menu.classList.remove('open');
+          btn.classList.remove('open');
+        }
       }
-    }
-    window.addEventListener('DOMContentLoaded', showMobileMenuIfLoggedIn);
+      updateMobileMenuVisibility();
+      window.addEventListener('resize', updateMobileMenuVisibility);
+
+      btn.onclick = function() {
+        menu.classList.toggle('open');
+        btn.classList.toggle('open');
+      };
+      closeBtn.onclick = function() {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+      };
+      // Close menu on navigation
+      menu.querySelectorAll('a').forEach(a => {
+        a.onclick = () => {
+          menu.classList.remove('open');
+          btn.classList.remove('open');
+        };
+      });
+      // Logout logic
+      logoutBtn.onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('writelyUser');
+        localStorage.removeItem('token');
+        window.location.reload();
+      };
+    });
+    window.addEventListener('DOMContentLoaded', async function() {
+        await fetchCategories();
+        showMobileMenuIfLoggedIn();
+    });
     window.addEventListener('resize', showMobileMenuIfLoggedIn);
 
     // Hamburger open/close
