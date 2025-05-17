@@ -1347,3 +1347,205 @@ body {
     font-size: 1rem;
   }
 }
+
+/* Write Page - Modern, Unique Style (Only for write.html) */
+.write-main {
+  max-width: 700px;
+  margin: 3rem auto 2rem auto;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  animation: fadeIn 0.7s;
+}
+.write-main h1 {
+  color: var(--primary);
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+  text-align: left;
+}
+.write-intro {
+  color: var(--muted);
+  margin-bottom: 2.2rem;
+  font-size: 1.13rem;
+  font-style: italic;
+  text-align: left;
+}
+.write-form {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 1.2rem;
+  padding: 2.2rem 2rem 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 2px 12px rgba(60,60,100,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.write-form label {
+  display: block;
+  margin-bottom: 1.2rem;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 1.08rem;
+}
+.write-form input[type="text"],
+.write-form input[type="url"],
+.write-form select,
+.write-form textarea {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.7rem;
+  font-size: 1.08rem;
+  background: #f7f8fa;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-shadow: none;
+}
+.write-form input:focus,
+.write-form textarea:focus,
+.write-form select:focus {
+  border: 1.5px solid var(--primary);
+  background: #fff;
+}
+.write-form textarea {
+  min-height: 140px;
+  resize: vertical;
+  font-family: inherit;
+}
+.write-actions {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+.write-actions button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.8rem 2.2rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+  letter-spacing: 0.5px;
+}
+.write-actions button:hover {
+  background: var(--accent);
+  color: var(--text);
+  transform: translateY(-2px) scale(1.04);
+}
+.blog-preview {
+  margin-top: 2.5rem;
+  padding: 2rem 1.2rem;
+  background: #f7f8fa;
+  border: 1.5px solid var(--border);
+  border-radius: 1.2rem;
+  box-shadow: none;
+  animation: fadeIn 0.7s;
+}
+.blog-preview h2 {
+  color: var(--primary);
+  margin-bottom: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.blog-preview img {
+  max-width: 100%;
+  border-radius: 1rem;
+  margin: 1rem 0;
+  box-shadow: none;
+}
+.blog-preview h3 {
+  color: var(--primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+.blog-preview div {
+  font-size: 1.08rem;
+  color: var(--text);
+  margin-bottom: 0.7rem;
+}
+.blog-preview .tags {
+  color: var(--accent);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Responsive for write page only */
+@media (max-width: 900px) {
+  .write-main {
+    padding: 1.2rem 0.5rem;
+  }
+  .write-form {
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+  }
+}
+@media (max-width: 600px) {
+  .write-main {
+    padding: 0.7rem 0.1rem;
+    margin: 1.2rem 0;
+  }
+  .write-main h1 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  .write-intro {
+    font-size: 0.98rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .write-form {
+    padding: 1rem 0.5rem;
+    border-radius: 1.2rem;
+    font-size: 1.05rem;
+    gap: 0.7rem;
+  }
+  .write-form label {
+    margin-bottom: 1rem;
+    font-size: 1.01rem;
+  }
+  .write-form input[type="text"],
+  .write-form input[type="url"],
+  .write-form select,
+  .write-form textarea {
+    font-size: 1.05rem;
+    padding: 0.7rem 0.7rem;
+    border-radius: 1rem;
+  }
+  .write-actions {
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 1rem;
+    align-items: stretch;
+  }
+  .write-actions button {
+    width: 100%;
+    font-size: 1.08rem;
+    padding: 0.7rem 0;
+    border-radius: 1.5rem;
+  }
+  .blog-preview {
+    padding: 1rem 0.5rem;
+    border-radius: 1.2rem;
+    font-size: 1.05rem;
+  }
+  .blog-preview h2, .blog-preview h3 {
+    font-size: 1.08rem;
+    margin-bottom: 0.5rem;
+  }
+  .blog-preview img {
+    border-radius: 1rem;
+    margin: 0.7rem 0;
+  }
+}
