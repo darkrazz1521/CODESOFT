@@ -1263,27 +1263,30 @@ body {
     transform: rotate(-45deg) translate(6px, -6px);
   }
 
-  /* Slide-down mobile menu */
+  /* Slide-in mobile menu from right */
   .mobile-menu {
     display: flex;
     flex-direction: column;
     position: fixed;
     top: 0;
-    left: 0;
     right: 0;
+    bottom: 0;
+    width: 80vw;
+    max-width: 320px;
+    height: 100vh;
     background: #fff;
-    box-shadow: 0 8px 32px rgba(60,60,100,0.13);
-    border-radius: 0 0 1.5rem 1.5rem;
+    box-shadow: -4px 0 32px rgba(60,60,100,0.13);
+    border-radius: 1.5rem 0 0 1.5rem;
     z-index: 1001;
-    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+    padding: 2.2rem 1.2rem 1.2rem 1.2rem;
     gap: 1.1rem;
-    transform: translateY(-120%);
-    transition: transform 0.33s cubic-bezier(0.5,0,0.5,1.2);
+    transform: translateX(110%);
+    transition: transform 0.33s cubic-bezier(0.5,0,0.5,1.2), opacity 0.2s;
     opacity: 0;
     pointer-events: none;
   }
   .mobile-menu.open {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
     pointer-events: auto;
   }
@@ -1310,32 +1313,10 @@ body {
     color: var(--primary);
     font-size: 2rem;
     position: absolute;
-    top: 0.7rem;
+    top: 1.2rem;
     right: 1.2rem;
     cursor: pointer;
     z-index: 1003;
-  }
-
-  /* Show login button after contact in navbar for mobile */
-  .navbar nav a[href="login.html"] {
-    order: 99;
-    background: var(--primary);
-    color: #fff !important;
-    border-radius: 1.2rem;
-    padding: 0.7rem 1.2rem;
-    margin-left: 0.5rem;
-    font-weight: 600;
-    font-size: 1.08rem;
-    box-shadow: 0 2px 8px rgba(60,60,100,0.07);
-    display: inline-block;
-    transition: background 0.2s, color 0.2s;
-  }
-  .navbar nav a[href="login.html"]:hover {
-    background: var(--accent);
-    color: var(--text) !important;
-  }
-  .navbar nav {
-    flex-wrap: wrap;
   }
 }
 
