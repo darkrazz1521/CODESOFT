@@ -62,6 +62,18 @@
         </section>
     </main>
     <script src="./js/auth-ui.js"></script>
+    <!-- Mobile menu button and menu (only visible on mobile) -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="display:none;" aria-label="Open menu">
+      <span class="bar bar1"></span>
+      <span class="bar bar2"></span>
+      <span class="bar bar3"></span>
+    </button>
+    <nav class="mobile-menu" id="mobileMenu" style="display:none;">
+      <button class="close-btn" id="mobileMenuClose" aria-label="Close menu">&times;</button>
+      <a href="write.html" id="mobileWriteBtn">Write Blog</a>
+      <a href="dashboard.html" id="mobileDashboardBtn">Dashboard</a>
+      <a href="#" id="mobileLogoutBtn">Logout</a>
+    </nav>
     <script>
     window.addEventListener('DOMContentLoaded', async function() {
         const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
@@ -153,6 +165,51 @@
             alert('Network error. Try again.');
         }
     };
+
+    // Mobile menu logic
+    function showMobileMenuIfLoggedIn() {
+      const user = localStorage.getItem('writelyUser');
+      const btn = document.getElementById('mobileMenuBtn');
+      const menu = document.getElementById('mobileMenu');
+      if (window.innerWidth <= 500 && user) {
+        btn.style.display = 'flex';
+        menu.style.display = 'flex';
+      } else {
+        btn.style.display = 'none';
+        menu.style.display = 'none';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', showMobileMenuIfLoggedIn);
+    window.addEventListener('resize', showMobileMenuIfLoggedIn);
+
+    // Hamburger open/close
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+    if (mobileMenuBtn && mobileMenu && mobileMenuClose) {
+      mobileMenuBtn.onclick = function() {
+        mobileMenu.classList.toggle('open');
+        mobileMenuBtn.classList.toggle('open');
+      };
+      mobileMenuClose.onclick = function() {
+        mobileMenu.classList.remove('open');
+        mobileMenuBtn.classList.remove('open');
+      };
+      // Close menu on navigation
+      mobileMenu.querySelectorAll('a').forEach(a => {
+        a.onclick = () => {
+          mobileMenu.classList.remove('open');
+          mobileMenuBtn.classList.remove('open');
+        };
+      });
+      // Logout logic
+      document.getElementById('mobileLogoutBtn').onclick = function(e) {
+        e.preventDefault();
+        localStorage.removeItem('writelyUser');
+        localStorage.removeItem('token');
+        window.location.reload();
+      };
+    }
     </script>
 </body>
 </html>
