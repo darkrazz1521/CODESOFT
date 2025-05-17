@@ -41,7 +41,7 @@
         const password = document.getElementById('password').value;
         signupMsg.textContent = '';
         try {
-            const res = await fetch('http://localhost:5000/api/auth/signup', {
+            const res = await fetch('https://devyntra-backend.onrender.com/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
@@ -67,7 +67,7 @@
         const otp = document.getElementById('otp').value.trim();
         signupMsg.textContent = '';
         try {
-            const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+            const res = await fetch('https://devyntra-backend.onrender.com/api/auth/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: signupEmail, otp })
@@ -78,7 +78,7 @@
                 signupMsg.textContent = 'Signup complete! Redirecting...';
                 otpFields.style.display = 'none';
                 // Auto-login: fetch token
-                const loginRes = await fetch('http://localhost:5000/api/auth/login', {
+                const loginRes = await fetch('https://devyntra-backend.onrender.com/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: signupEmail, password: document.getElementById('password').value })

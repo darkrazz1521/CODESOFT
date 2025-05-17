@@ -238,7 +238,7 @@
         if (!container) return;
         container.innerHTML = '<div style="color:var(--muted);text-align:center;">Loading...</div>';
         try {
-            const res = await fetch(`http://localhost:5000/api/blogs${params}`);
+            const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs${params}`);
             const blogs = await res.json();
             if (!Array.isArray(blogs) || blogs.length === 0) {
                 container.innerHTML = '<div style="color:var(--muted);text-align:center;">No posts found.</div>';

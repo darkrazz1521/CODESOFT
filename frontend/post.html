@@ -34,10 +34,10 @@ async function fetchPost() {
 
     // Increment view count (backend)
     try {
-        await fetch(`http://localhost:5000/api/blogs/${id}/view`, { method: 'POST' });
+        await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}/view`, { method: 'POST' });
     } catch {}
 
-    const res = await fetch(`http://localhost:5000/api/blogs/${id}`);
+    const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}`);
     const blog = await res.json();
     if (!blog || blog.message) {
         document.getElementById('postDetail').innerHTML = '<div style="color:red;text-align:center;">Post not found.</div>';
@@ -50,7 +50,7 @@ async function fetchPost() {
         authorName = blog.author.name;
     } else if (blog.author) {
         try {
-            const userRes = await fetch(`http://localhost:5000/api/auth/me`, {
+            const userRes = await fetch(`https://devyntra-backend.onrender.com/api/auth/me`, {
                 headers: {
                     'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
                 }
@@ -63,7 +63,7 @@ async function fetchPost() {
     // Fetch like count
     let likeCount = 0;
     try {
-        const likeRes = await fetch(`http://localhost:5000/api/blogs/${id}/like`);
+        const likeRes = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}/like`);
         const likeData = await likeRes.json();
         likeCount = likeData.likeCount || 0;
     } catch {}
@@ -71,7 +71,7 @@ async function fetchPost() {
     // Fetch comments
     let comments = [];
     try {
-        const commentsRes = await fetch(`http://localhost:5000/api/blogs/${id}/comments`);
+        const commentsRes = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}/comments`);
         comments = await commentsRes.json();
     } catch {}
 
@@ -118,7 +118,7 @@ async function fetchPost() {
             alert('You must be logged in to like.');
             return;
         }
-        const res = await fetch(`http://localhost:5000/api/blogs/${id}/like`, {
+        const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}/like`, {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + token }
         });
@@ -161,7 +161,7 @@ async function fetchPost() {
             return;
         }
         if (val) {
-            const res = await fetch(`http://localhost:5000/api/blogs/${id}/comments`, {
+            const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${id}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

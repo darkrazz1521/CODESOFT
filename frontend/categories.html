@@ -37,7 +37,7 @@
     <script src="./js/auth-ui.js"></script>
     <script>
     async function fetchCategories() {
-        const res = await fetch('http://localhost:5000/api/categories');
+        const res = await fetch('https://devyntra-backend.onrender.com/api/categories');
         const cats = await res.json();
         const grid = document.getElementById('categoryCards');
         grid.innerHTML = '';
@@ -57,7 +57,7 @@
     }
 
     async function fetchBlogsByCategory(category) {
-        const res = await fetch(`http://localhost:5000/api/blogs?category=${encodeURIComponent(category)}&status=Published`);
+        const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs?category=${encodeURIComponent(category)}&status=Published`);
         const blogs = await res.json();
         const postsGrid = document.getElementById('categoryPosts');
         postsGrid.innerHTML = '';

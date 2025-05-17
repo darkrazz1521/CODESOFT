@@ -72,7 +72,7 @@
         const blogId = params.get('id');
         if (blogId) {
             try {
-                const res = await fetch(`http://localhost:5000/api/blogs/${blogId}`);
+                const res = await fetch(`https://devyntra-backend.onrender.com/api/blogs/${blogId}`);
                 const blog = await res.json();
                 if (blog && !blog.message) {
                     document.getElementById('blogTitle').value = blog.title || '';
@@ -127,8 +127,8 @@
 
         const blogId = this.getAttribute('data-edit-id');
         const url = blogId
-            ? `http://localhost:5000/api/blogs/${blogId}`
-            : 'http://localhost:5000/api/blogs';
+            ? `https://devyntra-backend.onrender.com/api/blogs/${blogId}`
+            : 'https://devyntra-backend.onrender.com/api/blogs';
         const method = blogId ? 'PUT' : 'POST';
 
         try {
