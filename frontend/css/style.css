@@ -1074,15 +1074,17 @@ body {
     margin: 1.2rem 0;
   }
   .dashboard-summary {
-    flex-direction: column;
-    gap: 0.7rem;
+    flex-direction: column !important;
+    gap: 1rem;
   }
   .summary-card {
-    padding: 0.7rem 1rem;
-    min-width: 100px;
+    width: 100%;
+    min-width: unset;
+    margin-bottom: 0.5rem;
     border-radius: 1.2rem;
+    font-size: 1.07rem;
   }
-  .dashboard-btn {
+  .dashboard-btn, .dashboard-btn.danger {
     width: 100%;
     margin: 0.2rem 0;
     font-size: 1.08rem;
@@ -1090,8 +1092,13 @@ body {
     border-radius: 1.5rem;
   }
   .dashboard-table-section {
+    overflow-x: auto;
     padding: 0.7rem 0.1rem;
     border-radius: 1.2rem;
+  }
+  .dashboard-table {
+    min-width: 600px;
+    font-size: 0.97rem;
   }
   .dashboard-table th, .dashboard-table td {
     padding: 0.5rem 0.2rem;

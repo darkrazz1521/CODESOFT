@@ -45,12 +45,7 @@
             <input type="text" id="searchInput" placeholder="Search by title or keyword">
             <select id="categoryFilter">
                 <option value="">All Categories</option>
-                <option>Tech</option>
-                <option>Lifestyle</option>
-                <option>Travel</option>
-                <option>Productivity</option>
-                <option>Health</option>
-                <option>Finance</option>
+                <!-- Categories will be populated dynamically -->
             </select>
         </section>
         <section class="dashboard-table-section">
@@ -87,6 +82,25 @@
     <script>
 let blogs = [];
 
+// Populate category filter options dynamically
+function populateCategoryFilter() {
+    const select = document.getElementById('categoryFilter');
+    if (!select) return;
+    // Save the first option
+    const firstOption = select.querySelector('option[value=""]');
+    // Remove all except the first
+    select.innerHTML = '';
+    if (firstOption) select.appendChild(firstOption);
+    // Get unique categories from blogs
+    const cats = Array.from(new Set(blogs.map(b => b.category).filter(Boolean)));
+    cats.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+    });
+}
+
 async function fetchBlogsAndStats() {
     const user = JSON.parse(localStorage.getItem('writelyUser') || '{}');
     const token = localStorage.getItem('token');
@@ -110,6 +124,7 @@ async function fetchBlogsAndStats() {
     document.getElementById('totalDrafts').textContent = totalDrafts;
     document.getElementById('totalPublished').textContent = totalPublished;
 
+    populateCategoryFilter();
     renderTable();
 }
 
@@ -219,6 +234,27 @@ function renderTable() {
         window.location.reload();
       };
     }
+
+    window.addEventListener('DOMContentLoaded', function() {
+    fetchBlogsAndStats();
+    // Responsive dashboard tweaks for mobile
+    function mobileDashboardUI() {
+        if (window.innerWidth <= 500) {
+            // Make summary cards stack vertically
+            document.querySelectorAll('.dashboard-summary').forEach(el => el.style.flexDirection = 'column');
+            // Make table horizontally scrollable
+            document.querySelectorAll('.dashboard-table-section').forEach(el => el.style.overflowX = 'auto');
+            document.querySelectorAll('.dashboard-table').forEach(el => el.style.minWidth = '600px');
+        } else {
+            // Reset to default for desktop
+            document.querySelectorAll('.dashboard-summary').forEach(el => el.style.flexDirection = '');
+            document.querySelectorAll('.dashboard-table-section').forEach(el => el.style.overflowX = '');
+            document.querySelectorAll('.dashboard-table').forEach(el => el.style.minWidth = '');
+        }
+    }
+    mobileDashboardUI();
+    window.addEventListener('resize', mobileDashboardUI);
+});
     </script>
 </body>
 </html>
